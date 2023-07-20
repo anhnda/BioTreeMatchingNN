@@ -53,7 +53,7 @@ def train():
     best_eval_lost = 1000
     ibest = -1
     eval_label = None
-    best_eval_label = None
+    best_predicted_eval_label = None
     for epoch in range(FLAGS.N_EPOCHES):
         # for data in tqdm(loader, total=len(loader)):
         tMatchingModel.train()
@@ -86,10 +86,10 @@ def train():
             ibest = epoch
             print("New best at ", ibest, eval_loss)
             eval_label = all_labels
-            best_eval_label = all_predicted
+            best_predicted_eval_label = all_predicted
         print("Eval: ", eval_loss, all_predicted, all_labels)
     print("Best eval loss: ", best_eval_lost, " at epoch: ", ibest)
     print("Eval labels: ", eval_label)
-    print("Best eval labels: ", best_eval_label)
+    print("Best predicted eval labels: ", best_predicted_eval_label)
 if __name__ == "__main__":
     train()
