@@ -4,6 +4,7 @@ import numpy as np
 
 from utils import func as utils
 import torch
+from torch_geometric.data import HeteroData
 
 
 def convert_suchtree(T: SuchTree, root_offset=0):
@@ -48,14 +49,16 @@ def convert_suchtree(T: SuchTree, root_offset=0):
     return n, nl, remap_node_dict, edges, edge_labels, x
 
 
-def create_graphpair(T1: SuchTree, T2: SuchTree, links):
+def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True,nn=""):
     n1, nl1, remap_node_dict1, edges1, edge_labels1, x1 = convert_suchtree(T1, 0)
     n2, nl2, remap_node_dict2, edges2, edge_labels2, x2 = convert_suchtree(T2, n1)
 
     # create crossed edges:
     link_rows_names = list(links.index)
     link_columns_names = list(links.columns)
-    link_mat = links.to_numpy() * 1.0 / FLAGS.CROSS_COUNT_NORMALIZE
+    links = links.to_numpy()
+    # print(links)
+    link_mat = links * 1.0 / FLAGS.CROSS_COUNT_NORMALIZE
     row_refs = T1.leafs.keys()
     col_refs = T2.leafs.keys()
 
@@ -96,14 +99,49 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links):
 
     edge_labels = edge_labels1 + edge_labels2 + link_edge_labels
     edge_features = torch.zeros((len(edge_labels), FLAGS.EDGE_FEATURE_DIM))
+    assert not torch.any(torch.isnan(edge_features))
+
     eindices = tuple(np.vstack((np.arange(len(edge_labels)), np.asarray(edge_labels, dtype=int))))
     edge_features[eindices] = 1
+
+    assert not torch.any(torch.isnan(edge_features))
+
     eindices = tuple(np.vstack((np.arange(link_edge_started, len(edge_labels)),
                                 np.asarray([4 for _ in range(len(link_edge_data))]))))
-    edge_features[eindices] = torch.from_numpy(np.asarray([link_edge_data])).float().reshape(-1)
+    # print(len(link_edge_data), nn)
+    # print(len(eindices))
+    xx = torch.from_numpy(np.asarray([link_edge_data])).float().reshape(-1)
+    # print(link_edge_data)
+    assert not torch.any(torch.isnan(xx))
 
+    edge_features[eindices] = xx
+    assert not torch.any(torch.isnan(edge_features))
+
+
+    if torch.any(torch.isnan(edge_features)):
+        print("Label: ", label)
+    assert not torch.any(torch.isnan(edge_features))
     x = torch.from_numpy(np.vstack([x1, x2])).float()
 
-
-
+    if to_graph:
+        graph = HeteroData()
+        graph['node'].x = x
+        graph['node','to','node'].edge_index = edges
+        graph['node','to','node'].edge_features = edge_features
+        graph['node'].anchor = [n1, n2]
+        graph['label'].v = [label]
+        return graph
     return edges, edge_features, x, n1
+
+
+def update_anchor_batch(batch_tensor, anchor):
+    assert np.sum(anchor) == len(batch_tensor)
+    s = 0
+    cv = 0
+    for n1,n2 in anchor:
+        batch_tensor[s:s+n1] = cv
+        cv += 1
+        s += n1
+        batch_tensor[s:s+n2] = cv
+        cv += 1
+        s += n2
