@@ -1,0 +1,21 @@
+name: btm
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.9.13
+  - pytorch=1.12.1
+  - searbon
+  - spicy
+  - pandas
+  - cython
+  - pip=22.2.2
+  - pip:
+    - torch-cluster==1.6.0
+    - torch-geometric==2.1.0.post1
+    - torch-scatter==2.0.9
+    - torch-sparse==0.6.15
+    - torch-spline-conv==1.2.1
+    - tqdm==4.64.1
