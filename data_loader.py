@@ -316,17 +316,22 @@ studies = [{'name': 'Gopher, Lice',
 
 null_studies = []
 
-
 from SuchTree import SuchTree, SuchLinkedTrees
 import pandas as pd
 import seaborn
 
 name = 'snow'
 
-T1 = SuchTree( 'data/plant-pollinators/' + name + '/plant.tree' )
-T2 = SuchTree( 'data/plant-pollinators/' + name + '/animal.tree' )
-links = pd.read_csv( 'data/plant-pollinators/' + name + '/' + name + '_links.csv', index_col=0 )
-print( T1.n_leafs, T2.n_leafs, links.shape )
-print(set( T1.leafs.keys() ))
-print(set( links.index ))
-print(set( T1.leafs.keys() ) ^ set( links.index ))
+T1 = SuchTree('data/plant-pollinators/' + name + '/plant.tree')
+T2 = SuchTree('data/plant-pollinators/' + name + '/animal.tree')
+links = pd.read_csv('data/plant-pollinators/' + name + '/' + name + '_links.csv', index_col=0)
+
+from graphpair import convert_suchtree, create_graphpair
+import torch
+
+edges, edge_features, x, n1 = create_graphpair(T1, T2, links)
+
+print(edges.shape, edges)
+print(edge_features.shape, edge_features)
+print(x.shape, x)
+print(n1)
