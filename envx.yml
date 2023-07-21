@@ -20,5 +20,6 @@ dependencies:
     - tqdm==4.64.1
     - seaborn
     - scipy
+    - scikit-learn
     - dendropy
     - SuchTree

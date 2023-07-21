@@ -7,13 +7,13 @@ import torch
 from torch_geometric.data import HeteroData
 
 
-def convert_suchtree(T: SuchTree, root_offset=0):
+def convert_suchtree(T: SuchTree, root_offset=0, leaf_offset=0):
     nl = T.n_leafs
     n = T.length
 
     x = np.zeros((n, FLAGS.MAX_SUM_LEAFS))
     for i in range(nl):
-        x[i, i + root_offset] = 1
+        x[i, i + leaf_offset] = 1
     remap_node_dict = {}
     sorted_origin_leafs = sorted(list(T.leafs.values()))
     for v in sorted_origin_leafs:
@@ -49,9 +49,9 @@ def convert_suchtree(T: SuchTree, root_offset=0):
     return n, nl, remap_node_dict, edges, edge_labels, x
 
 
-def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True,nn=""):
-    n1, nl1, remap_node_dict1, edges1, edge_labels1, x1 = convert_suchtree(T1, 0)
-    n2, nl2, remap_node_dict2, edges2, edge_labels2, x2 = convert_suchtree(T2, n1)
+def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, nn=""):
+    n1, nl1, remap_node_dict1, edges1, edge_labels1, x1 = convert_suchtree(T1, 0, 0)
+    n2, nl2, remap_node_dict2, edges2, edge_labels2, x2 = convert_suchtree(T2, n1, nl1)
 
     # create crossed edges:
     link_rows_names = list(links.index)
@@ -117,7 +117,6 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True,n
     edge_features[eindices] = xx
     assert not torch.any(torch.isnan(edge_features))
 
-
     if torch.any(torch.isnan(edge_features)):
         print("Label: ", label)
     assert not torch.any(torch.isnan(edge_features))
@@ -126,8 +125,8 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True,n
     if to_graph:
         graph = HeteroData()
         graph['node'].x = x
-        graph['node','to','node'].edge_index = edges
-        graph['node','to','node'].edge_features = edge_features
+        graph['node', 'to', 'node'].edge_index = edges
+        graph['node', 'to', 'node'].edge_features = edge_features
         graph['node'].anchor = [n1, n2]
         graph['label'].v = [label]
         return graph
@@ -138,10 +137,10 @@ def update_anchor_batch(batch_tensor, anchor):
     assert np.sum(anchor) == len(batch_tensor)
     s = 0
     cv = 0
-    for n1,n2 in anchor:
-        batch_tensor[s:s+n1] = cv
+    for n1, n2 in anchor:
+        batch_tensor[s:s + n1] = cv
         cv += 1
         s += n1
-        batch_tensor[s:s+n2] = cv
+        batch_tensor[s:s + n2] = cv
         cv += 1
         s += n2

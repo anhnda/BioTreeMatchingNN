@@ -12,6 +12,7 @@ from torch_scatter import scatter_mean
 from btdataset import BTDataset
 from tqdm import tqdm
 from torch.nn import MSELoss
+from sklearn.metrics import roc_auc_score as auc, average_precision_score as aupr
 def tx():
     name = 'snow'
 
@@ -81,14 +82,16 @@ def train():
         all_predicted = torch.cat(all_predicted)
         all_labels = torch.cat(all_labels)
         eval_loss = lossFunc(all_predicted, all_labels)
+        all_predicted = all_predicted.detach().cpu().numpy()
         if eval_loss < best_eval_lost:
             best_eval_lost = eval_loss
             ibest = epoch
             print("New best at ", ibest, eval_loss)
-            eval_label = all_labels
+            if eval_label is None:
+                eval_label = all_labels.detach().cpu().numpy()
             best_predicted_eval_label = all_predicted
-        print("Eval: ", eval_loss, all_predicted, all_labels)
-    print("Best eval loss: ", best_eval_lost, " at epoch: ", ibest)
+        print("Eval: ", eval_loss, all_predicted, all_labels, auc(all_labels, all_predicted), aupr(all_labels, all_predicted))
+    print("Best eval loss: ", best_eval_lost, auc(eval_label, best_predicted_eval_label),aupr(eval_label, best_predicted_eval_label), " at epoch: ", ibest)
     print("Eval labels: ", eval_label)
     print("Best predicted eval labels: ", best_predicted_eval_label)
 if __name__ == "__main__":
