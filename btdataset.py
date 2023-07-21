@@ -13,8 +13,10 @@ class BTDataset(Dataset, ABC):
         super(BTDataset, self).__init__()
         with open(pos_path) as f:
             self.positive_files = json.load(f)
+            print("Pos len: ", len(self.positive_files))
         with open(neg_path) as f:
             self.negative_files = json.load(f)
+            print("Neg len: ", len(self.negative_files))
         self.graphs = None
         self.load_data()
 
