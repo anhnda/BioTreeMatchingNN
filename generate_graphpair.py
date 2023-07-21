@@ -128,7 +128,9 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
         graph['node', 'to', 'node'].edge_index = edges
         graph['node', 'to', 'node'].edge_features = edge_features
         graph['node'].anchor = [n1, n2]
+        graph['leaf'].anchor = [nl1, nl2]
         graph['label'].v = [label]
+        graph.name = nn
         return graph
     return edges, edge_features, x, n1
 
@@ -144,3 +146,14 @@ def update_anchor_batch(batch_tensor, anchor):
         batch_tensor[s:s + n2] = cv
         cv += 1
         s += n2
+
+def get_acc_anchor(anchor):
+    s = 0
+    acc_anchor = []
+    acc_anchor.append(s)
+    for n1, n2 in anchor:
+        s += n1
+        acc_anchor.append(s)
+        s += n2
+        acc_anchor.append(s)
+    return acc_anchor

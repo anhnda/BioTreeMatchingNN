@@ -13,33 +13,7 @@ from btdataset import BTDataset
 from tqdm import tqdm
 from torch.nn import MSELoss
 from sklearn.metrics import roc_auc_score as auc, average_precision_score as aupr
-def tx():
-    name = 'snow'
 
-    T1 = SuchTree('data/plant-pollinators/' + name + '/plant.tree')
-    T2 = SuchTree('data/plant-pollinators/' + name + '/animal.tree')
-    links = pd.read_csv('data/plant-pollinators/' + name + '/' + name + '_links.csv', index_col=0)
-    # edges, edge_features, x, n1 = create_graphpair(T1, T2, links)
-    btgraph1 = create_graphpair(T1, T2, links)
-
-    name = 'wes'
-    T12 = SuchTree('data/plant-pollinators/' + name + '/plant.tree')
-    T22 = SuchTree('data/plant-pollinators/' + name + '/animal.tree')
-    links2 = pd.read_csv('data/plant-pollinators/' + name + '/' + name + '_links.csv', index_col=0)
-    # edges, edge_features, x, n1 = create_graphpair(T1, T2, links)
-    btgraph2 = create_graphpair(T12, T22, links2)
-
-    btgraph = Batch.from_data_list([btgraph1, btgraph2])
-    print(btgraph['node'].batch)
-    print(btgraph['node'].anchor)
-
-    update_anchor_batch(btgraph['node'].batch, btgraph['node'].anchor)
-    print(btgraph['node'].batch)
-
-    tMatchingModel = TMatching(FLAGS.EDGE_FEATURE_DIM, FLAGS.EDGE_FEATURE_EMBEDDING_DIM,
-                               FLAGS.NODE_FEATURE_EMBEDDING_DIM)
-    x, xout1, xout2 = tMatchingModel(btgraph)
-    print(xout1.shape, xout2.shape, x.shape)
 
 def train():
     train_dataset = BTDataset(pos_path="positive_pairs_train.json",neg_path="negative_pairs_train.json")
@@ -87,6 +61,7 @@ def train():
             best_eval_lost = eval_loss
             ibest = epoch
             print("New best at ", ibest, eval_loss)
+            torch.save(tMatchingModel.state_dict(), "best_model.pkl")
             if eval_label is None:
                 eval_label = all_labels.detach().cpu().numpy()
             best_predicted_eval_label = all_predicted
