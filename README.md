@@ -15,7 +15,7 @@
     python3 training.py
 
 ### Current run:
-    Best eval loss:  tensor(0.0951, grad_fn=<MseLossBackward0>)  at epoch:  38
-    Eval labels:  tensor([1., 0., 0., 1., 0., 1., 0., 0., 1., 1.])
-    Best predicted eval labels:  tensor([ 1.0820,  0.6438,  0.4287,  0.6406, -0.0217,  0.8672,  0.0330,  0.0205,
-         0.8839,  0.5709], grad_fn=<CatBackward0>)
+    Best eval loss, auc, aupr:  tensor(0.1497, grad_fn=<MseLossBackward0>) 0.9600000000000001 0.9666666666666666  at epoch:  28
+    Eval labels:  [0. 0. 1. 1. 0. 0. 1. 1. 0. 1.]
+    Best predicted eval labels:  [ 0.9016529  -0.00399305  0.9675149   0.86232644  0.7967971   0.00653598
+    0.90543926  0.98692226  0.14010811  0.9804735 ]

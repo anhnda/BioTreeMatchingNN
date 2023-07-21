@@ -91,7 +91,7 @@ def train():
                 eval_label = all_labels.detach().cpu().numpy()
             best_predicted_eval_label = all_predicted
         print("Eval: ", eval_loss, all_predicted, all_labels, auc(all_labels, all_predicted), aupr(all_labels, all_predicted))
-    print("Best eval loss: ", best_eval_lost, auc(eval_label, best_predicted_eval_label),aupr(eval_label, best_predicted_eval_label), " at epoch: ", ibest)
+    print("Best eval loss, auc, aupr: ", best_eval_lost, auc(eval_label, best_predicted_eval_label),aupr(eval_label, best_predicted_eval_label), " at epoch: ", ibest)
     print("Eval labels: ", eval_label)
     print("Best predicted eval labels: ", best_predicted_eval_label)
 if __name__ == "__main__":
