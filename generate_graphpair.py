@@ -35,7 +35,10 @@ def convert_suchtree(T: SuchTree, root_offset=0, leaf_offset=0):
             remap_node_id = utils.get_insert_dict_index(remap_node_dict, current_node_origin, root_offset)
             remap_parent_id = utils.get_insert_dict_index(remap_node_dict, parent_id_origin, root_offset)
             edges.append([remap_node_id, remap_parent_id])
-            edge_labels.append(0)
+            if FLAGS.SAME_EDGE_PARENT_CHILD:
+                edge_labels.append(1)
+            else:
+                edge_labels.append(0)
             edges.append([remap_parent_id, remap_node_id])
             edge_labels.append(1)
 
@@ -92,7 +95,10 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
 
                 link_edges.append([row_remap_ids[j], col_remap_ids[j]])
                 link_edge_data.append([values[j]])
-                link_edge_labels.append(3)
+                if FLAGS.SAME_EDGE_HOST_GUEST:
+                    link_edge_labels.append(2)
+                else:
+                    link_edge_labels.append(3)
 
     edges = edges1 + edges2 + link_edges
     link_edge_started = len(edges1) + len(edges2)

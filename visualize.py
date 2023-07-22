@@ -49,7 +49,7 @@ def dumpEmbedding():
 def loadx():
     xps = joblib.load("xfeatures.pkl")
     ic = 0
-    ti = 2
+    ti = 1
     for xp in xps:
         f1, f2, anchor_leafs, lb, sc, name = xp
         # print(lb)
