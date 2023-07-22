@@ -1,20 +1,4 @@
-[ { "name" : "Gopher, Lice",
-              "type" : "parasitism",
-              "host" : "data/gopher-louse/gopher.tree",
-              "guest": "data/gopher-louse/lice.tree",
-              "links": "data/gopher-louse/links.csv" },
-           
-            { "name" : "Sedge, Smut",
-              "type" : "parasitism",
-              "host" : "data/sedge-smut/host.tree",
-              "guest": "data/sedge-smut/guest.tree",
-              "links": "data/sedge-smut/links.csv" },
-           
-            { "name" : "Fish, Worm",
-              "type" : "parasitism",
-              "host" : "data/fish-worm/host.tree",
-              "guest": "data/fish-worm/guest.tree",
-              "links": "data/fish-worm/links.csv" },
+[
            
             { "name" : "beeh",
               "type" : "frugivory",

@@ -129,7 +129,10 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
         graph['node', 'to', 'node'].edge_features = edge_features
         graph['node'].anchor = [n1, n2]
         graph['leaf'].anchor = [nl1, nl2]
-        graph['label'].v = [label]
+        lbx = torch.zeros(FLAGS.N_TYPES)
+        lbx[label] = 1
+        graph['label'].v = lbx
+
         graph.name = nn
         return graph
     return edges, edge_features, x, n1

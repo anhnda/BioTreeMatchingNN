@@ -1,7 +1,7 @@
 import json
 import random
 
-random.seed(1)
+random.seed(2)
 def split_jsonfile(inp, r=0.9):
     with open(inp) as f:
         js = json.load(f)
