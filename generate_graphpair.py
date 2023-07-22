@@ -73,7 +73,8 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
             col_matching_ids.append(i)
             remap_colname_matching[len(remap_colname_matching)] = col_name
         else:
-            print("Skip col: ", col_name)
+            if FLAGS.VERBOSE:
+                print("Skip col: ", col_name)
     link_mat = link_mat[:, col_matching_ids]
     for i, row_name in enumerate(link_rows_names):
         if row_name in row_refs:
@@ -99,26 +100,15 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
 
     edge_labels = edge_labels1 + edge_labels2 + link_edge_labels
     edge_features = torch.zeros((len(edge_labels), FLAGS.EDGE_FEATURE_DIM))
-    assert not torch.any(torch.isnan(edge_features))
-
     eindices = tuple(np.vstack((np.arange(len(edge_labels)), np.asarray(edge_labels, dtype=int))))
     edge_features[eindices] = 1
-
-    assert not torch.any(torch.isnan(edge_features))
-
     eindices = tuple(np.vstack((np.arange(link_edge_started, len(edge_labels)),
                                 np.asarray([4 for _ in range(len(link_edge_data))]))))
-    # print(len(link_edge_data), nn)
-    # print(len(eindices))
     xx = torch.from_numpy(np.asarray([link_edge_data])).float().reshape(-1)
-    # print(link_edge_data)
     assert not torch.any(torch.isnan(xx))
 
     edge_features[eindices] = xx
     assert not torch.any(torch.isnan(edge_features))
-
-    if torch.any(torch.isnan(edge_features)):
-        print("Label: ", label)
     assert not torch.any(torch.isnan(edge_features))
     x = torch.from_numpy(np.vstack([x1, x2])).float()
 
