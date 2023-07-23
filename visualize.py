@@ -107,5 +107,5 @@ def loadx():
 
 
 if __name__ == "__main__":
-    # dumpEmbedding()
+    dumpEmbedding()
     loadx()
