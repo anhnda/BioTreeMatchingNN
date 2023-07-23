@@ -23,17 +23,28 @@ def convert_suchtree(T: SuchTree, root_offset=0, leaf_offset=0):
     current_nodes = sorted_origin_leafs
     next_nodes = set()
     root_node = T.root
+    cur_node_level = 0
+    node_level_map = dict()
+
     while True:
         if len(current_nodes) == 0:
             break
         for current_node_origin in current_nodes:
-
+            assert current_node_origin != root_node
             parent_id_origin = T.get_parent(current_node_origin)
-            if parent_id_origin != root_node:
-                next_nodes.add(parent_id_origin)
 
             remap_node_id = utils.get_insert_dict_index(remap_node_dict, current_node_origin, root_offset)
             remap_parent_id = utils.get_insert_dict_index(remap_node_dict, parent_id_origin, root_offset)
+
+            if parent_id_origin != root_node:
+                next_nodes.add(parent_id_origin)
+            else:
+                node_level_map[remap_parent_id]= FLAGS.ROOT_NODE_LEVEL
+
+            old_level = utils.get_insert_dict_index(node_level_map, remap_node_id,10e6)
+            if old_level > cur_node_level:
+                node_level_map.update({remap_node_id: cur_node_level})
+
             edges.append([remap_node_id, remap_parent_id])
             if FLAGS.SAME_EDGE_PARENT_CHILD:
                 edge_labels.append(1)
@@ -44,17 +55,27 @@ def convert_suchtree(T: SuchTree, root_offset=0, leaf_offset=0):
 
         current_nodes = sorted(list(next_nodes))
         next_nodes = set()
+        cur_node_level += 1
 
     # Add self-loop
     for i in range(n):
         edges.append([i, i])
         edge_labels.append(1)
-    return n, nl, remap_node_dict, edges, edge_labels, x
+
+    assert len(node_level_map) == n
+    # Get Node level list:
+    node_level_ar = np.zeros(n, dtype=int)
+    node_originid_ar = np.zeros(n, dtype=int)
+    remap_x = {v: k for k,v in remap_node_dict.items()}
+    for i in range(n):
+        node_level_ar[i] = node_level_map[i+root_offset]
+        node_originid_ar[i] = remap_x[i+root_offset] - root_offset
+    return n, nl, remap_node_dict, edges, edge_labels, x, node_level_ar, node_originid_ar
 
 
 def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, nn=""):
-    n1, nl1, remap_node_dict1, edges1, edge_labels1, x1 = convert_suchtree(T1, 0, 0)
-    n2, nl2, remap_node_dict2, edges2, edge_labels2, x2 = convert_suchtree(T2, n1, nl1)
+    n1, nl1, remap_node_dict1, edges1, edge_labels1, x1, node_level_ar1, node_origin_ar1 = convert_suchtree(T1, 0, 0)
+    n2, nl2, remap_node_dict2, edges2, edge_labels2, x2, node_level_ar2, node_origin_ar2 = convert_suchtree(T2, n1, nl1)
 
     # create crossed edges:
     link_rows_names = list(links.index)
@@ -125,6 +146,8 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
         graph['node', 'to', 'node'].edge_features = edge_features
         graph['node'].anchor = [n1, n2]
         graph['leaf'].anchor = [nl1, nl2]
+        graph['host_node_level'].level = node_level_ar1
+        graph['guest_node_level'].level = node_level_ar2
         lbx = torch.zeros(FLAGS.N_TYPES)
         lbx[label] = 1
         graph['label'].v = lbx
