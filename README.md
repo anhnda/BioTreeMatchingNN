@@ -1,5 +1,9 @@
 # BioTreeMatchingNN
+## Cross attention does not work
+(at least with the current implementation)
 
+## Do not use this branch
+(Only for testing variants of the model)
 # Setup
 
 ```shell
