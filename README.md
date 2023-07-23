@@ -14,8 +14,11 @@
 
     python3 training.py
 
-### Current run:
-    Best eval loss, auc, aupr:  tensor(0.1497, grad_fn=<MseLossBackward0>) 0.9600000000000001 0.9666666666666666  at epoch:  28
-    Eval labels:  [0. 0. 1. 1. 0. 0. 1. 1. 0. 1.]
-    Best predicted eval labels:  [ 0.9016529  -0.00399305  0.9675149   0.86232644  0.7967971   0.00653598
-    0.90543926  0.98692226  0.14010811  0.9804735 ]
+## Visualize
+    
+    python3 visualize.py -l {0: 'frugivory', 1: 'pollination': 1, 2: 'neg'}
+    
+![](figs/Demo1.png)
+   - Blue: Host, OrangeRed: Guest
+   - darker: leaf, lighter: closer to root
+   - Area with mixing colors: highly correlated

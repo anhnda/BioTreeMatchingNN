@@ -28,6 +28,7 @@ tp_dict_id = {v: k for k, v in tp_dict.items()}
 
 HOST_COLOR_LV = get_scale_light_color_list('mediumblue')
 GUEST_COLOR_LV = get_scale_light_color_list('orangered')
+from optparse import OptionParser
 
 
 def dumpEmbedding():
@@ -58,10 +59,9 @@ def dumpEmbedding():
         joblib.dump(xps, "xfeatures.pkl")
 
 
-def loadx():
+def loadx(ti=0):
     xps = joblib.load("xfeatures.pkl")
     ic = 0
-    ti = 2
     for xp in xps:
         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
         # print(lb)
@@ -107,5 +107,11 @@ def loadx():
 
 
 if __name__ == "__main__":
+    parser = OptionParser()
+
+    parser.add_option("-l", "--label", dest="label", type='int', default=1, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
+
+
+    (options, args) = parser.parse_args()
     dumpEmbedding()
-    loadx()
+    loadx(ti=options.label)
