@@ -1,0 +1,104 @@
+Run 0
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Best eval loss, auc, aupr:  tensor(0.0429, grad_fn=<MseLossBackward0>) 1.0 1.0  at epoch:  34
+Run 1
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Best eval loss, auc, aupr:  tensor(0.0543, grad_fn=<MseLossBackward0>) 1.0 1.0  at epoch:  238
+Run 2
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Best eval loss, auc, aupr:  tensor(0.0449, grad_fn=<MseLossBackward0>) 1.0 1.0  at epoch:  254
+Run 3
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Best eval loss, auc, aupr:  tensor(0.0717, grad_fn=<MseLossBackward0>) 0.945 0.9055555555555556  at epoch:  137
+Run 4
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Best eval loss, auc, aupr:  tensor(0.0501, grad_fn=<MseLossBackward0>) 0.9791666666666666 0.9444444444444443  at epoch:  197
+Run 5
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Best eval loss, auc, aupr:  tensor(0.0343, grad_fn=<MseLossBackward0>) 1.0 1.0  at epoch:  45
+Run 6
+RD SEED:  1
+Pos len:  42
+Neg len:  45
+Loading...
+Loaded!
+Max depth:  34
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}
+Pos len:  5
+Neg len:  5
+Loading...
+Loaded!
+Max depth:  28
+Tps:  3 {'frugivory': 0, 'pollination': 1, 'neg': 2}

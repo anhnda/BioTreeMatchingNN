@@ -67,7 +67,7 @@ def train():
         all_predicted = torch.cat(all_predicted)
         all_labels = torch.cat(all_labels)
         eval_loss = lossFunc(all_predicted, all_labels)
-        lr_scheduler.step(eval_loss)
+        # lr_scheduler.step(eval_loss)
         all_labels = all_labels.detach().cpu().numpy().reshape((-1, FLAGS.N_TYPES))
         if FLAGS.VERBOSE:
             print(all_labels)
