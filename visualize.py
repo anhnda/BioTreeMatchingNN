@@ -1,3 +1,5 @@
+import math
+
 import joblib
 import torch
 from SuchTree import SuchTree
@@ -46,6 +48,9 @@ def dumpEmbedding():
         scores, x, xout1, xout2 = tMatchingModel(data)
         print(x.shape)
         anchors = get_acc_anchor(data['node'].anchor)
+        links_weight = data['links'].weight
+        links_indices = data['links'].indices
+        # print(links)
         xps = []
         print(len(anchors), data.num_graphs)
         print(data.name)
@@ -60,14 +65,84 @@ def dumpEmbedding():
 
 
 
-        joblib.dump(xps, "xfeatures.pkl")
+        joblib.dump([xps, links_indices, links_weight], "xfeatures.pkl")
 
 
-def loadx(ti=0):
-    xps = joblib.load("xfeatures.pkl")
+# def loadx(ti=0):
+#     xps = joblib.load("xfeatures.pkl")
+#     ic = 0
+#     for xp in xps:
+#         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
+#         # print(lb)
+#         if lb[ti] == 1:
+#
+#             print(name, lb, sc, anchor_leafs, f1.shape, f2.shape)
+#             pca = TSNE(n_components=2)
+#             x = np.vstack((f1, f2))
+#             xs = pca.fit_transform(x)
+#
+#             fig = plt.figure()
+#             x1 = xs[:f1.shape[0], :]
+#             x2 = xs[f1.shape[0]:, :]
+#             x1s = []
+#             x2s = []
+#             print(x1.shape, x2.shape)
+#             c1 = []
+#             for il in range(x1.shape[0]):
+#                 v = host_lv[il]
+#                 if v != 0:
+#                     continue
+#                 if v == FLAGS.ROOT_NODE_LEVEL:
+#                     c1.append((1, 20.0 / 255, 147.0 / 255))  # PINK
+#                 else:
+#                     v = min(v, len(HOST_COLOR_LV) - 1)
+#                     c1.append(HOST_COLOR_LV[v])
+#                 x1s.append(x1[il])
+#             c2 = []
+#             for il in range(x2.shape[0]):
+#                 v = guest_lv[il]
+#                 if v != 0:
+#                     continue
+#                 if v == FLAGS.ROOT_NODE_LEVEL:
+#                     c2.append((0, 1, 0))  # GREEN
+#                 else:
+#                     v = min(v, len(GUEST_COLOR_LV) - 1)
+#                     c2.append(GUEST_COLOR_LV[v])
+#                 x2s.append(x2[il])
+#             # c1 = ['red' for _ in range(anchor_leafs[0])] + [(0.25, 0.0676470588235294, 0.0) for _ in range(anchor_leafs[0], x1.shape[0])]
+#             # c2 = ['blue' for _ in range(anchor_leafs[1])] + ['lightsteelblue' for _ in range(anchor_leafs[1], x2.shape[0])]
+#             x1s = np.vstack(x1s)
+#             x2s = np.vstack(x2s)
+#             sc1 = plt.scatter(x1s[:, 0], x1s[:, 1], c=c1)
+#             sc2 = plt.scatter(x2s[:, 0], x2s[:, 1], c=c2)
+#
+#             dat = np.vstack([x1s, x2s])
+#             reg = LinearRegression().fit(dat[:,0].reshape(-1,1), dat[:, 1])
+#             coef = reg.coef_
+#             intercept = reg.intercept_
+#             x = np.linspace(np.min(dat[:,0]), np.max(dat[:,0]), 100)
+#             y = x * coef + intercept
+#             plt.plot(x,y)
+#             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
+#             plt.show()
+#             # plt.savefig
+#             # break
+#             ic += 1
+#             if ic == 10:
+#                 break
+
+
+
+def plotx(ti=0):
+    from utils.misc import get_online_position
+    xps, links_indices, links_weight = joblib.load("xfeatures.pkl")
     ic = 0
-    for xp in xps:
+    for ii, xp in enumerate(xps):
         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
+        link_indices = np.asarray(links_indices[ii])
+        link_weight = links_weight[ii]
+        n_node_host = f1.shape[0]
+        n_node_guest = f2.shape[0]
         # print(lb)
         if lb[ti] == 1:
 
@@ -79,45 +154,64 @@ def loadx(ti=0):
             fig = plt.figure()
             x1 = xs[:f1.shape[0], :]
             x2 = xs[f1.shape[0]:, :]
+
+            # Get leaves
             x1s = []
             x2s = []
             print(x1.shape, x2.shape)
             c1 = []
+            imap_leaf_host = dict()
+            imap_leaf_guest = dict()
             for il in range(x1.shape[0]):
                 v = host_lv[il]
-                if v != 0:
-                    continue
-                if v == FLAGS.ROOT_NODE_LEVEL:
-                    c1.append((1, 20.0 / 255, 147.0 / 255))  # PINK
-                else:
-                    v = min(v, len(HOST_COLOR_LV) - 1)
+                if v == 0:
                     c1.append(HOST_COLOR_LV[v])
-                x1s.append(x1[il])
+                    x1s.append(x1[il])
+                    imap_leaf_host[il] = len(x1s) - 1
             c2 = []
             for il in range(x2.shape[0]):
                 v = guest_lv[il]
-                if v != 0:
-                    continue
-                if v == FLAGS.ROOT_NODE_LEVEL:
-                    c2.append((0, 1, 0))  # GREEN
-                else:
-                    v = min(v, len(GUEST_COLOR_LV) - 1)
+                if v == 0:
                     c2.append(GUEST_COLOR_LV[v])
-                x2s.append(x2[il])
-            # c1 = ['red' for _ in range(anchor_leafs[0])] + [(0.25, 0.0676470588235294, 0.0) for _ in range(anchor_leafs[0], x1.shape[0])]
-            # c2 = ['blue' for _ in range(anchor_leafs[1])] + ['lightsteelblue' for _ in range(anchor_leafs[1], x2.shape[0])]
+                    x2s.append(x2[il])
+                    imap_leaf_guest[il + n_node_host] = len(x2s) - 1
             x1s = np.vstack(x1s)
             x2s = np.vstack(x2s)
-            sc1 = plt.scatter(x1s[:, 0], x1s[:, 1], c=c1)
-            sc2 = plt.scatter(x2s[:, 0], x2s[:, 1], c=c2)
+            # sc1 = plt.scatter(x1s[:, 0], x1s[:, 1], c=c1)
+            # sc2 = plt.scatter(x2s[:, 0], x2s[:, 1], c=c2)
 
             dat = np.vstack([x1s, x2s])
-            reg = LinearRegression().fit(dat[:,0].reshape(-1,1), dat[:, 1])
-            coef = reg.coef_
-            intercept = reg.intercept_
-            x = np.linspace(np.min(dat[:,0]), np.max(dat[:,0]), 100)
-            y = x * coef + intercept
-            plt.plot(x,y)
+            online_positions = get_online_position(dat)
+            pos_ar_host = []
+            pos_ar_guest = []
+            for i in range(dat.shape[0]):
+                if i < x1s.shape[0]:
+                    dy = 1
+                    color = 'blue'
+                else:
+                    dy = -1
+                    color = 'red'
+                dx = online_positions[i]
+                if i < x1s.shape[0]:
+                    pos_ar_host.append([dx,dy])
+                else:
+                    pos_ar_guest.append([dx, dy])
+                plt.scatter(dx,dy, color=color)
+            mx_weight = -100
+            for jj,p in enumerate(link_indices):
+                i1, i2 = p
+                if i1 > i2:
+                    continue
+                # print(p)
+
+                i1 = imap_leaf_host[i1]
+                i2 = imap_leaf_guest[i2]
+                weight = link_weight[jj][0]
+                mx_weight = max(mx_weight, weight)
+                print(weight, mx_weight)
+                linewidth = min(10, int(math.ceil(10 * weight)))
+                plt.plot([pos_ar_host[i1][0], pos_ar_guest[i2][0]], [pos_ar_host[i1][1], pos_ar_guest[i2][1]],
+                         color='green', linewidth=linewidth,linestyle='dashed')
             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
             plt.show()
             # plt.savefig
@@ -135,4 +229,5 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     # dumpEmbedding()
-    loadx(ti=options.label)
+    # loadx(ti=options.label)
+    plotx(ti=options.label)

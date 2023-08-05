@@ -81,7 +81,9 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
     link_rows_names = list(links.index)
     link_columns_names = list(links.columns)
     links = links.to_numpy()
-    assert np.any(np.isnan(links)) or np.any(np.isinf(links))
+    # print(links, np.any(np.isnan(links)), np.any(np.isinf(links)))
+
+    assert not (np.any(np.isnan(links)) or np.any(np.isinf(links)))
     link_mat = links * 1.0 / FLAGS.CROSS_COUNT_NORMALIZE
     row_refs = T1.leafs.keys()
     col_refs = T2.leafs.keys()
@@ -142,6 +144,8 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
         graph['node', 'to', 'node'].edge_features = edge_features
         graph['node'].anchor = [n1, n2]
         graph['leaf'].anchor = [nl1, nl2]
+        graph['links'].indices = link_edges
+        graph['links'].weight = link_edge_data
         graph['host_node_level'].level = node_level_ar1
         graph['guest_node_level'].level = node_level_ar2
         lbx = torch.zeros(FLAGS.N_TYPES)
