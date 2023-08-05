@@ -368,7 +368,7 @@ def plotx2(ti=0):
 if __name__ == "__main__":
     parser = OptionParser()
 
-    parser.add_option("-l", "--label", dest="label", type='int', default=0, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
+    parser.add_option("-l", "--label", dest="label", type='int', default=1, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
 
 
     (options, args) = parser.parse_args()
