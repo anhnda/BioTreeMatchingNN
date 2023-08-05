@@ -81,7 +81,7 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
     link_rows_names = list(links.index)
     link_columns_names = list(links.columns)
     links = links.to_numpy()
-    # print(links)
+    assert np.any(np.isnan(links)) or np.any(np.isinf(links))
     link_mat = links * 1.0 / FLAGS.CROSS_COUNT_NORMALIZE
     row_refs = T1.leafs.keys()
     col_refs = T2.leafs.keys()
@@ -132,11 +132,7 @@ def create_graphpair(T1: SuchTree, T2: SuchTree, links, label=0, to_graph=True, 
     eindices = tuple(np.vstack((np.arange(link_edge_started, len(edge_labels)),
                                 np.asarray([4 for _ in range(len(link_edge_data))]))))
     xx = torch.from_numpy(np.asarray([link_edge_data])).float().reshape(-1)
-    assert not torch.any(torch.isnan(xx))
-
     edge_features[eindices] = xx
-    assert not torch.any(torch.isnan(edge_features))
-    assert not torch.any(torch.isnan(edge_features))
     x = torch.from_numpy(np.vstack([x1, x2])).float()
 
     if to_graph:

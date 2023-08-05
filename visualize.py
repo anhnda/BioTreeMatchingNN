@@ -21,7 +21,7 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 from utils.func import get_scale_light_color_list
-
+from sklearn.linear_model import LinearRegression
 tp_dict = {'frugivory': 0, 'pollination': 1, 'neg': 2}
 tp_dict_id = {v: k for k, v in tp_dict.items()}
 if FLAGS.BINARY_LABEL:
@@ -79,28 +79,45 @@ def loadx(ti=0):
             fig = plt.figure()
             x1 = xs[:f1.shape[0], :]
             x2 = xs[f1.shape[0]:, :]
+            x1s = []
+            x2s = []
             print(x1.shape, x2.shape)
             c1 = []
             for il in range(x1.shape[0]):
                 v = host_lv[il]
+                if v != 0:
+                    continue
                 if v == FLAGS.ROOT_NODE_LEVEL:
                     c1.append((1, 20.0 / 255, 147.0 / 255))  # PINK
                 else:
                     v = min(v, len(HOST_COLOR_LV) - 1)
                     c1.append(HOST_COLOR_LV[v])
+                x1s.append(x1[il])
             c2 = []
             for il in range(x2.shape[0]):
                 v = guest_lv[il]
+                if v != 0:
+                    continue
                 if v == FLAGS.ROOT_NODE_LEVEL:
                     c2.append((0, 1, 0))  # GREEN
                 else:
                     v = min(v, len(GUEST_COLOR_LV) - 1)
                     c2.append(GUEST_COLOR_LV[v])
+                x2s.append(x2[il])
             # c1 = ['red' for _ in range(anchor_leafs[0])] + [(0.25, 0.0676470588235294, 0.0) for _ in range(anchor_leafs[0], x1.shape[0])]
             # c2 = ['blue' for _ in range(anchor_leafs[1])] + ['lightsteelblue' for _ in range(anchor_leafs[1], x2.shape[0])]
-            sc1 = plt.scatter(x1[:, 0], x1[:, 1], c=c1)
-            sc2 = plt.scatter(x2[:, 0], x2[:, 1], c=c2)
+            x1s = np.vstack(x1s)
+            x2s = np.vstack(x2s)
+            sc1 = plt.scatter(x1s[:, 0], x1s[:, 1], c=c1)
+            sc2 = plt.scatter(x2s[:, 0], x2s[:, 1], c=c2)
 
+            dat = np.vstack([x1s, x2s])
+            reg = LinearRegression().fit(dat[:,0].reshape(-1,1), dat[:, 1])
+            coef = reg.coef_
+            intercept = reg.intercept_
+            x = np.linspace(np.min(dat[:,0]), np.max(dat[:,0]), 100)
+            y = x * coef + intercept
+            plt.plot(x,y)
             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
             plt.show()
             # plt.savefig
@@ -117,5 +134,5 @@ if __name__ == "__main__":
 
 
     (options, args) = parser.parse_args()
-    dumpEmbedding()
+    # dumpEmbedding()
     loadx(ti=options.label)
