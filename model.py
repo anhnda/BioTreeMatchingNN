@@ -36,6 +36,7 @@ class TMatching(torch.nn.Module):
         self.final_layer2 = torch.nn.Linear(node_embedding_dim, FLAGS.N_TYPES).to(self.device)
         self.sm = Softmax(dim=-1)
         self.graphNorm = GraphNorm(node_embedding_dim).to(self.device)
+        print("N_LABELS: ", FLAGS.N_TYPES)
 
 
     def forward(self, data: Batch):

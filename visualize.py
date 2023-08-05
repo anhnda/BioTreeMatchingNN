@@ -23,8 +23,10 @@ from matplotlib import pyplot as plt
 from utils.func import get_scale_light_color_list
 
 tp_dict = {'frugivory': 0, 'pollination': 1, 'neg': 2}
-N_LB = len(tp_dict)
 tp_dict_id = {v: k for k, v in tp_dict.items()}
+if FLAGS.BINARY_LABEL:
+    tp_dict_id = {0: "Pos", 1: "Neg"}
+N_LB = len(tp_dict_id)
 
 HOST_COLOR_LV = get_scale_light_color_list('mediumblue')
 GUEST_COLOR_LV = get_scale_light_color_list('orangered')
@@ -55,6 +57,8 @@ def dumpEmbedding():
             xps.append([x[anchors[2 * i]:anchors[2 * i + 1], :], x[anchors[2 * i + 1]:anchors[2 * i + 2], :],
                         data['leaf'].anchor[i], lbs[i], scores[i], data['host_node_level'].level[i],
                         data['guest_node_level'].level[i], data.name[i]])
+
+
 
         joblib.dump(xps, "xfeatures.pkl")
 
@@ -109,7 +113,7 @@ def loadx(ti=0):
 if __name__ == "__main__":
     parser = OptionParser()
 
-    parser.add_option("-l", "--label", dest="label", type='int', default=1, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
+    parser.add_option("-l", "--label", dest="label", type='int', default=0, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
 
 
     (options, args) = parser.parse_args()

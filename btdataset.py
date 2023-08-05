@@ -2,6 +2,8 @@ import random
 from abc import ABC
 
 from torch_geometric.data import Dataset
+
+import FLAGS
 from generate_graphpair import create_graphpair
 import json
 from SuchTree import SuchTree
@@ -36,7 +38,10 @@ class BTDataset(Dataset, ABC):
                 # print(sample['host'], sample['guest'], sample['links'])
                 tHost = SuchTree(sample['host'])
                 tGuest = SuchTree(sample['guest'])
-                lbx = get_insert_dict_index(tps, sample['type'])
+                if FLAGS.BINARY_LABEL:
+                    lbx = lb
+                else:
+                    lbx = get_insert_dict_index(tps, sample['type'])
                 max_depth = max(max_depth, tHost.depth, tGuest.depth)
                 links = pd.read_csv(sample['links'], index_col=0)
                 graph = create_graphpair(tHost, tGuest, links, lbx,nn=sample['links'])
