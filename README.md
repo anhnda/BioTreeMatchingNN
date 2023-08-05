@@ -1,10 +1,11 @@
 # BioTreeMatchingNN
 
 # Setup
-
+ Note: Current env tested on Mac M2
+ 
 ```shell
-    conda env create -f envx.yml
-    conda activate btm
+    conda env create -f mac_arm64_env.yml
+    conda activate btx
 ```
 ## Data:
 
@@ -19,6 +20,5 @@
     python3 visualize.py -l {0 for positive, 1 for negative}
     
 ![](figs/Fig2.png)
-   - Blue: Host, OrangeRed: Guest
-   - darker: leaf, lighter: closer to root
-   - Area with mixing colors: highly correlated
+   - Upper: Host
+   - Lower: Guest
