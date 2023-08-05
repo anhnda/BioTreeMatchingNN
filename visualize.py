@@ -112,7 +112,7 @@ def plotx(ti=0):
                 if v == 0:
                     c2.append(GUEST_COLOR_LV[v])
                     x2s.append(x2[il])
-                    imap_leaf_guest[il + n_node_host] = len(x2s) - 1
+                    imap_leaf_guest[il] = len(x2s) - 1
             x1s = np.vstack(x1s)
             x2s = np.vstack(x2s)
 
@@ -121,6 +121,7 @@ def plotx(ti=0):
             pos_ar_host = []
             pos_ar_guest = []
             print("Imap leaf host: ", imap_leaf_host)
+            print("IMap leaf guest: ", imap_leaf_guest)
             for i in range(dat.shape[0]):
                 if i < x1s.shape[0]:
                     dy = 1
@@ -142,7 +143,7 @@ def plotx(ti=0):
                 print(p, x1.shape[0], x2.shape[0])
 
                 i1 = imap_leaf_host[i1]
-                i2 = imap_leaf_guest[i2]
+                i2 = imap_leaf_guest[i2 - n_node_host]
                 weight = link_weight[jj][0]
                 # mx_weight = max(mx_weight, weight)
                 # print(weight, mx_weight)
@@ -156,8 +157,8 @@ def plotx(ti=0):
                     nc = 0
                     # print("DB", parent_id, children)
                     for child in children:
-                        if child not in imap_leaf_host:
-                            continue
+                        # if child not in imap_leaf_host:
+                        #     continue
                         ichild = imap_leaf_host[child]
                         pos += np.asarray(pos_ar_host[ichild])
                         nc += 1
@@ -177,8 +178,8 @@ def plotx(ti=0):
                     nc = 0
                     # print("DB", parent_id, children)
                     for child in children:
-                        if child not in imap_leaf_guest:
-                            continue
+                        # if child not in imap_leaf_guest:
+                        #     continue
                         ichild = imap_leaf_guest[child]
                         pos += np.asarray(pos_ar_guest[ichild])
                         nc += 1
@@ -211,5 +212,5 @@ if __name__ == "__main__":
 
 
     (options, args) = parser.parse_args()
-    dumpEmbedding()
+    # dumpEmbedding()
     plotx(ti=options.label)
