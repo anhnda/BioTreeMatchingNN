@@ -8,7 +8,7 @@ from generate_graphpair import create_graphpair
 import json
 from SuchTree import SuchTree
 import pandas as pd
-from utils.func import get_insert_dict_index
+from utils.func import get_insert_dict_index_with_offset_id
 
 class BTDataset(Dataset, ABC):
     def __init__(self, pos_path="positive_pairs.json", neg_path="negative_pairs.json", tp_dict = None):
@@ -41,7 +41,7 @@ class BTDataset(Dataset, ABC):
                 if FLAGS.BINARY_LABEL:
                     lbx = lb
                 else:
-                    lbx = get_insert_dict_index(tps, sample['type'])
+                    lbx = get_insert_dict_index_with_offset_id(tps, sample['type'])
                 max_depth = max(max_depth, tHost.depth, tGuest.depth)
                 links = pd.read_csv(sample['links'], index_col=0)
                 graph = create_graphpair(tHost, tGuest, links, lbx,nn=sample['links'])

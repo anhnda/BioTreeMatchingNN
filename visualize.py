@@ -50,6 +50,8 @@ def dumpEmbedding():
         anchors = get_acc_anchor(data['node'].anchor)
         links_weight = data['links'].weight
         links_indices = data['links'].indices
+        host_children_remap = data['host_children_map'].dat
+        guest_children_remap = data['guest_children_map'].dat
         # print(links)
         xps = []
         print(len(anchors), data.num_graphs)
@@ -65,77 +67,11 @@ def dumpEmbedding():
 
 
 
-        joblib.dump([xps, links_indices, links_weight], "xfeatures.pkl")
-
-
-# def loadx(ti=0):
-#     xps = joblib.load("xfeatures.pkl")
-#     ic = 0
-#     for xp in xps:
-#         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
-#         # print(lb)
-#         if lb[ti] == 1:
-#
-#             print(name, lb, sc, anchor_leafs, f1.shape, f2.shape)
-#             pca = TSNE(n_components=2)
-#             x = np.vstack((f1, f2))
-#             xs = pca.fit_transform(x)
-#
-#             fig = plt.figure()
-#             x1 = xs[:f1.shape[0], :]
-#             x2 = xs[f1.shape[0]:, :]
-#             x1s = []
-#             x2s = []
-#             print(x1.shape, x2.shape)
-#             c1 = []
-#             for il in range(x1.shape[0]):
-#                 v = host_lv[il]
-#                 if v != 0:
-#                     continue
-#                 if v == FLAGS.ROOT_NODE_LEVEL:
-#                     c1.append((1, 20.0 / 255, 147.0 / 255))  # PINK
-#                 else:
-#                     v = min(v, len(HOST_COLOR_LV) - 1)
-#                     c1.append(HOST_COLOR_LV[v])
-#                 x1s.append(x1[il])
-#             c2 = []
-#             for il in range(x2.shape[0]):
-#                 v = guest_lv[il]
-#                 if v != 0:
-#                     continue
-#                 if v == FLAGS.ROOT_NODE_LEVEL:
-#                     c2.append((0, 1, 0))  # GREEN
-#                 else:
-#                     v = min(v, len(GUEST_COLOR_LV) - 1)
-#                     c2.append(GUEST_COLOR_LV[v])
-#                 x2s.append(x2[il])
-#             # c1 = ['red' for _ in range(anchor_leafs[0])] + [(0.25, 0.0676470588235294, 0.0) for _ in range(anchor_leafs[0], x1.shape[0])]
-#             # c2 = ['blue' for _ in range(anchor_leafs[1])] + ['lightsteelblue' for _ in range(anchor_leafs[1], x2.shape[0])]
-#             x1s = np.vstack(x1s)
-#             x2s = np.vstack(x2s)
-#             sc1 = plt.scatter(x1s[:, 0], x1s[:, 1], c=c1)
-#             sc2 = plt.scatter(x2s[:, 0], x2s[:, 1], c=c2)
-#
-#             dat = np.vstack([x1s, x2s])
-#             reg = LinearRegression().fit(dat[:,0].reshape(-1,1), dat[:, 1])
-#             coef = reg.coef_
-#             intercept = reg.intercept_
-#             x = np.linspace(np.min(dat[:,0]), np.max(dat[:,0]), 100)
-#             y = x * coef + intercept
-#             plt.plot(x,y)
-#             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
-#             plt.show()
-#             # plt.savefig
-#             # break
-#             ic += 1
-#             if ic == 10:
-#                 break
-
-
+        joblib.dump([xps, links_indices, links_weight, host_children_remap, guest_children_remap], "xfeatures.pkl")
 
 def plotx(ti=0):
     from utils.misc import get_online_position
-    xps, links_indices, links_weight = joblib.load("xfeatures.pkl")
+    xps, links_indices, links_weight, host_children_remap, guest_children_remap = joblib.load("xfeatures.pkl")
     ic = 0
     for ii, xp in enumerate(xps):
         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
@@ -143,6 +79,8 @@ def plotx(ti=0):
         link_weight = links_weight[ii]
         n_node_host = f1.shape[0]
         n_node_guest = f2.shape[0]
+        host_children_remapi = host_children_remap[ii][0]
+        guest_children_remapi = guest_children_remap[ii][0]
         # print(lb)
         if lb[ti] == 1:
 
@@ -158,7 +96,7 @@ def plotx(ti=0):
             # Get leaves
             x1s = []
             x2s = []
-            print(x1.shape, x2.shape)
+            print("SP 12", x1.shape, x2.shape)
             c1 = []
             imap_leaf_host = dict()
             imap_leaf_guest = dict()
@@ -177,13 +115,12 @@ def plotx(ti=0):
                     imap_leaf_guest[il + n_node_host] = len(x2s) - 1
             x1s = np.vstack(x1s)
             x2s = np.vstack(x2s)
-            # sc1 = plt.scatter(x1s[:, 0], x1s[:, 1], c=c1)
-            # sc2 = plt.scatter(x2s[:, 0], x2s[:, 1], c=c2)
 
             dat = np.vstack([x1s, x2s])
             online_positions = get_online_position(dat)
             pos_ar_host = []
             pos_ar_guest = []
+            print("Imap leaf host: ", imap_leaf_host)
             for i in range(dat.shape[0]):
                 if i < x1s.shape[0]:
                     dy = 1
@@ -197,21 +134,67 @@ def plotx(ti=0):
                 else:
                     pos_ar_guest.append([dx, dy])
                 plt.scatter(dx,dy, color=color)
-            mx_weight = -100
+            # mx_weight = -100
             for jj,p in enumerate(link_indices):
                 i1, i2 = p
                 if i1 > i2:
                     continue
-                # print(p)
+                print(p, x1.shape[0], x2.shape[0])
 
                 i1 = imap_leaf_host[i1]
                 i2 = imap_leaf_guest[i2]
                 weight = link_weight[jj][0]
-                mx_weight = max(mx_weight, weight)
-                print(weight, mx_weight)
+                # mx_weight = max(mx_weight, weight)
+                # print(weight, mx_weight)
                 linewidth = min(10, int(math.ceil(10 * weight)))
                 plt.plot([pos_ar_host[i1][0], pos_ar_guest[i2][0]], [pos_ar_host[i1][1], pos_ar_guest[i2][1]],
                          color='green', linewidth=linewidth,linestyle='dashed')
+
+            for parent_id, children in host_children_remapi.items():
+                if host_lv[parent_id] == 1:
+                    pos = 0
+                    nc = 0
+                    # print("DB", parent_id, children)
+                    for child in children:
+                        if child not in imap_leaf_host:
+                            continue
+                        ichild = imap_leaf_host[child]
+                        pos += np.asarray(pos_ar_host[ichild])
+                        nc += 1
+                    pos /= nc
+                    pos[1] += 1
+                    plt.scatter(pos[0], pos[1], c='navy')
+                    for child in children:
+                        if child not in imap_leaf_host:
+                            continue
+                        ichild = imap_leaf_host[child]
+                        child_pos = np.asarray(pos_ar_host[ichild])
+                        plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='yellow')
+
+            for parent_id, children in guest_children_remapi.items():
+                if guest_lv[parent_id] == 1:
+                    pos = 0
+                    nc = 0
+                    # print("DB", parent_id, children)
+                    for child in children:
+                        if child not in imap_leaf_guest:
+                            continue
+                        ichild = imap_leaf_guest[child]
+                        pos += np.asarray(pos_ar_guest[ichild])
+                        nc += 1
+                    if nc == 0:
+                        continue
+                    pos /= nc
+                    pos[1] -= 1
+                    plt.scatter(pos[0], pos[1], c='brown')
+                    for child in children:
+                        if child not in imap_leaf_guest:
+                            continue
+                        ichild = imap_leaf_guest[child]
+                        child_pos = np.asarray(pos_ar_guest[ichild])
+                        plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='yellow')
+
+
             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
             plt.show()
             # plt.savefig
@@ -228,6 +211,5 @@ if __name__ == "__main__":
 
 
     (options, args) = parser.parse_args()
-    # dumpEmbedding()
-    # loadx(ti=options.label)
+    dumpEmbedding()
     plotx(ti=options.label)

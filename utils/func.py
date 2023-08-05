@@ -15,7 +15,7 @@ def get_scale_light_color_list(color="orangered"):
     return rgbs
 
 
-def get_insert_dict_index(d, k, offset=0):
+def get_insert_dict_index_with_offset_id(d, k, offset=0):
     try:
         idx = d[k]
     except:
@@ -25,7 +25,7 @@ def get_insert_dict_index(d, k, offset=0):
     return idx
 
 
-def get_index_dict(d, k, v=-1):
+def get_dict(d, k, v=-1):
     try:
         v = d[k]
     except:

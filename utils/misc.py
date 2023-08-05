@@ -21,7 +21,7 @@ def get_online_position(points):
     ymin = xmin * w[0] + c
 
     pmin = [xmin, ymin]
-    print(pmin)
+    # print(pmin)
     pmin = np.asarray(pmin)
     offset_vecs = projected_positions - pmin
     distances = np.sqrt(np.sum(offset_vecs * offset_vecs, axis=1))
