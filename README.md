@@ -19,7 +19,7 @@
     
     python3 visualize.py -l {0 for positive, 1 for negative}
     
-![Positive](figs/PosFig2.png)
+![Positive](figs/MackD10.png)
 ![Negative](figs/NegFig2.png)
    - Upper: Host
    - Lower: Guest
