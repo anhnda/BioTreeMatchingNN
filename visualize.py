@@ -69,142 +69,6 @@ def dumpEmbedding():
 
         joblib.dump([xps, links_indices, links_weight, host_children_remap, guest_children_remap], "xfeatures.pkl")
 
-# def plotx(ti=0):
-#     from utils.misc import get_online_position
-#     xps, links_indices, links_weight, host_children_remap, guest_children_remap = joblib.load("xfeatures.pkl")
-#     ic = 0
-#     for ii, xp in enumerate(xps):
-#         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
-#         link_indices = np.asarray(links_indices[ii])
-#         link_weight = links_weight[ii]
-#         n_node_host = f1.shape[0]
-#         n_node_guest = f2.shape[0]
-#         host_children_remapi = host_children_remap[ii][0]
-#         guest_children_remapi = guest_children_remap[ii][0]
-#         # print(lb)
-#         if lb[ti] == 1:
-#
-#             print(name, lb, sc, anchor_leafs, f1.shape, f2.shape)
-#             pca = TSNE(n_components=2)
-#             x = np.vstack((f1, f2))
-#             xs = pca.fit_transform(x)
-#
-#             fig = plt.figure()
-#             x1 = xs[:f1.shape[0], :]
-#             x2 = xs[f1.shape[0]:, :]
-#
-#             # Get leaves
-#             x1s = []
-#             x2s = []
-#             print("SP 12", x1.shape, x2.shape)
-#             c1 = []
-#             imap_leaf_host = dict()
-#             imap_leaf_guest = dict()
-#             for il in range(x1.shape[0]):
-#                 v = host_lv[il]
-#                 if v == 0:
-#                     c1.append(HOST_COLOR_LV[v])
-#                     x1s.append(x1[il])
-#                     imap_leaf_host[il] = len(x1s) - 1
-#             c2 = []
-#             for il in range(x2.shape[0]):
-#                 v = guest_lv[il]
-#                 if v == 0:
-#                     c2.append(GUEST_COLOR_LV[v])
-#                     x2s.append(x2[il])
-#                     imap_leaf_guest[il] = len(x2s) - 1
-#             x1s = np.vstack(x1s)
-#             x2s = np.vstack(x2s)
-#
-#             dat = np.vstack([x1s, x2s])
-#             online_positions = get_online_position(dat)
-#             pos_ar_host = []
-#             pos_ar_guest = []
-#             print("Imap leaf host: ", imap_leaf_host)
-#             print("IMap leaf guest: ", imap_leaf_guest)
-#             for i in range(dat.shape[0]):
-#                 if i < x1s.shape[0]:
-#                     dy = 1
-#                     color = 'blue'
-#                 else:
-#                     dy = -1
-#                     color = 'red'
-#                 dx = online_positions[i]
-#                 if i < x1s.shape[0]:
-#                     pos_ar_host.append([dx,dy])
-#                 else:
-#                     pos_ar_guest.append([dx, dy])
-#                 plt.scatter(dx,dy, color=color)
-#             # mx_weight = -100
-#             for jj,p in enumerate(link_indices):
-#                 i1, i2 = p
-#                 if i1 > i2:
-#                     continue
-#                 print(p, x1.shape[0], x2.shape[0])
-#
-#                 i1 = imap_leaf_host[i1]
-#                 i2 = imap_leaf_guest[i2 - n_node_host]
-#                 weight = link_weight[jj][0]
-#                 # mx_weight = max(mx_weight, weight)
-#                 # print(weight, mx_weight)
-#                 linewidth = min(10, int(math.ceil(10 * weight)))
-#                 plt.plot([pos_ar_host[i1][0], pos_ar_guest[i2][0]], [pos_ar_host[i1][1], pos_ar_guest[i2][1]],
-#                          color='green', linewidth=linewidth,linestyle='dashed')
-#
-#             for parent_id, children in host_children_remapi.items():
-#                 if host_lv[parent_id] == 1:
-#                     pos = 0
-#                     nc = 0
-#                     # print("DB", parent_id, children)
-#                     for child in children:
-#                         # if child not in imap_leaf_host:
-#                         #     continue
-#                         ichild = imap_leaf_host[child]
-#                         pos += np.asarray(pos_ar_host[ichild])
-#                         nc += 1
-#                     pos /= nc
-#                     pos[1] += 1
-#                     plt.scatter(pos[0], pos[1], c='navy')
-#                     for child in children:
-#                         if child not in imap_leaf_host:
-#                             continue
-#                         ichild = imap_leaf_host[child]
-#                         child_pos = np.asarray(pos_ar_host[ichild])
-#                         plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='yellow')
-#
-#             for parent_id, children in guest_children_remapi.items():
-#                 if guest_lv[parent_id] == 1:
-#                     pos = 0
-#                     nc = 0
-#                     # print("DB", parent_id, children)
-#                     for child in children:
-#                         # if child not in imap_leaf_guest:
-#                         #     continue
-#                         ichild = imap_leaf_guest[child]
-#                         pos += np.asarray(pos_ar_guest[ichild])
-#                         nc += 1
-#                     if nc == 0:
-#                         continue
-#                     pos /= nc
-#                     pos[1] -= 1
-#                     plt.scatter(pos[0], pos[1], c='brown')
-#                     for child in children:
-#                         if child not in imap_leaf_guest:
-#                             continue
-#                         ichild = imap_leaf_guest[child]
-#                         child_pos = np.asarray(pos_ar_guest[ichild])
-#                         plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='yellow')
-#
-#
-#             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
-#             plt.show()
-#             # plt.savefig
-#             # break
-#             ic += 1
-#             if ic == 10:
-#                 break
-
-
 def plotx2(ti=0):
     from utils.misc import get_online_position
     xps, links_indices, links_weight, host_children_remap, guest_children_remap = joblib.load("xfeatures.pkl")
@@ -313,7 +177,11 @@ def plotx2(ti=0):
                         host_pos_dict[parent_id] = pos
                         for child in children:
                             child_pos = host_pos_dict[child]
-                            plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='yellow')
+                            if FLAGS.RIGHT_ANGLE_PLOT:
+                                plt.plot([pos[0], pos[0]], [pos[1], child_pos[1]], color='lightsalmon')
+                                plt.plot([pos[0], child_pos[0]], [child_pos[1], child_pos[1]], color='lightsalmon')
+                            else:
+                                plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='lightsalmon')
 
             for i_deep in range(1, N_DEEP + 1):
                 for parent_id, children in guest_children_remapi.items():
@@ -331,7 +199,11 @@ def plotx2(ti=0):
                         guest_pos_dict[parent_id] = pos
                         for child in children:
                             child_pos = guest_pos_dict[child]
-                            plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='lightsalmon')
+                            if FLAGS.RIGHT_ANGLE_PLOT:
+                                plt.plot([pos[0], pos[0]], [pos[1], child_pos[1]], color='lightsalmon')
+                                plt.plot([pos[0], child_pos[0]], [child_pos[1], child_pos[1]], color='lightsalmon')
+                            else:
+                                plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='lightsalmon')
 
             # for parent_id, children in guest_children_remapi.items():
             #     if guest_lv[parent_id] == 1:
@@ -368,7 +240,7 @@ def plotx2(ti=0):
 if __name__ == "__main__":
     parser = OptionParser()
 
-    parser.add_option("-l", "--label", dest="label", type='int', default=1, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
+    parser.add_option("-l", "--label", dest="label", type='int', default=0, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
 
 
     (options, args) = parser.parse_args()
