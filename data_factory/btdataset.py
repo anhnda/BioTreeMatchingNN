@@ -4,7 +4,7 @@ from abc import ABC
 from torch_geometric.data import Dataset
 
 import FLAGS
-from generate_graphpair import create_graphpair
+from data_factory.generate_graphpair import create_graphpair
 import json
 from SuchTree import SuchTree
 import pandas as pd
@@ -58,6 +58,6 @@ class BTDataset(Dataset, ABC):
 
 if __name__ == "__main__":
     tp_dict = {}
-    train_dataset = BTDataset(pos_path="positive_pairs_train.json",neg_path="negative_pairs_train.json", tp_dict=tp_dict)
+    train_dataset = BTDataset(pos_path="../jsinfo/positive_pairs_train.json", neg_path="../jsinfo/negative_pairs_train.json", tp_dict=tp_dict)
     print(len(train_dataset))
     print(tp_dict)

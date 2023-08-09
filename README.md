@@ -18,7 +18,7 @@
 ## Visualize
     
     python3 visualize.py -l {0 for positive, 1 for negative}
-    
+## Todo: Current visualization can be fine-tuned by some heuristic rules for better alignment
 ![Positive](figs/MackD10.png)
 ![Negative](figs/NegFig2.png)
    - Upper: Host

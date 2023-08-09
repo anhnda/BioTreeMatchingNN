@@ -2,28 +2,18 @@ import math
 
 import joblib
 import torch
-from SuchTree import SuchTree
 import numpy as np
-from matplotlib.colors import LinearSegmentedColormap
 
 import FLAGS
-from model import TMatching
-import pandas as pd
-import seaborn
-from generate_graphpair import create_graphpair, update_anchor_batch, get_acc_anchor
+from models.tmatching import TMatching
+from data_factory.generate_graphpair import get_acc_anchor
 from torch_geometric.loader import DataLoader
-from torch_geometric.data import Batch
-from torch_scatter import scatter_mean
-from btdataset import BTDataset
-from tqdm import tqdm
-from torch.nn import MSELoss
-from sklearn.metrics import roc_auc_score as auc, average_precision_score as aupr
+from data_factory.btdataset import BTDataset
 
-from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from matplotlib import pyplot as plt
 from utils.func import get_scale_light_color_list
-from sklearn.linear_model import LinearRegression
+
 tp_dict = {'frugivory': 0, 'pollination': 1, 'neg': 2}
 tp_dict_id = {v: k for k, v in tp_dict.items()}
 if FLAGS.BINARY_LABEL:
@@ -38,10 +28,10 @@ from optparse import OptionParser
 def dumpEmbedding():
     tMatchingModel = TMatching(FLAGS.EDGE_FEATURE_DIM, FLAGS.EDGE_FEATURE_EMBEDDING_DIM,
                                FLAGS.NODE_FEATURE_EMBEDDING_DIM)
-    tMatchingModel.load_state_dict(torch.load("best_model.pkl"))
+    tMatchingModel.load_state_dict(torch.load("out/best_model.pkl"))
     # test_dataset = BTDataset(pos_path="positive_pairs_test.json",neg_path="negative_pairs_test.json")
     # test_loader = DataLoader(test_dataset, batch_size=len(test_dataset), shuffle=False)
-    train_dataset = BTDataset(pos_path="positive_pairs_train.json", neg_path="negative_pairs_train.json",
+    train_dataset = BTDataset(pos_path="jsinfo/positive_pairs_train.json", neg_path="jsinfo/negative_pairs_train.json",
                               tp_dict=tp_dict)
     train_loader = DataLoader(train_dataset, batch_size=len(train_dataset), shuffle=False)
     for _, data in enumerate(train_loader):
@@ -65,13 +55,12 @@ def dumpEmbedding():
                         data['leaf'].anchor[i], lbs[i], scores[i], data['host_node_level'].level[i],
                         data['guest_node_level'].level[i], data.name[i]])
 
+        joblib.dump([xps, links_indices, links_weight, host_children_remap, guest_children_remap], "out/xfeatures.pkl")
 
-
-        joblib.dump([xps, links_indices, links_weight, host_children_remap, guest_children_remap], "xfeatures.pkl")
 
 def plotx2(ti=0):
     from utils.misc import get_online_position
-    xps, links_indices, links_weight, host_children_remap, guest_children_remap = joblib.load("xfeatures.pkl")
+    xps, links_indices, links_weight, host_children_remap, guest_children_remap = joblib.load("out/xfeatures.pkl")
     ic = 0
     for ii, xp in enumerate(xps):
         f1, f2, anchor_leafs, lb, sc, host_lv, guest_lv, name = xp
@@ -126,8 +115,8 @@ def plotx2(ti=0):
             pos_ar_guest = []
             print("Imap leaf host: ", imap_leaf_host)
             print("IMap leaf guest: ", imap_leaf_guest)
-            rimap_leaf_host = {v:k for k, v in imap_leaf_host.items()}
-            rimap_leaf_guest = {v:k for k, v in imap_leaf_guest.items()}
+            rimap_leaf_host = {v: k for k, v in imap_leaf_host.items()}
+            rimap_leaf_guest = {v: k for k, v in imap_leaf_guest.items()}
             for i in range(dat.shape[0]):
                 if i < x1s.shape[0]:
                     dy = 1
@@ -142,12 +131,12 @@ def plotx2(ti=0):
                     host_pos_dict[rimap_leaf_host[i]] = ai
                 else:
                     pos_ar_guest.append(ai)
-                    guest_pos_dict[rimap_leaf_guest[i-x1s.shape[0]]] = ai
+                    guest_pos_dict[rimap_leaf_guest[i - x1s.shape[0]]] = ai
 
-                plt.scatter(ai[0],ai[1], color=color)
+                plt.scatter(ai[0], ai[1], color=color)
             print("Leaf init guest pos: ", guest_pos_dict)
             # mx_weight = -100
-            for jj,p in enumerate(link_indices):
+            for jj, p in enumerate(link_indices):
                 i1, i2 = p
                 if i1 > i2:
                     continue
@@ -160,7 +149,7 @@ def plotx2(ti=0):
                 # print(weight, mx_weight)
                 linewidth = min(10, int(math.ceil(10 * weight)))
                 plt.plot([pos_ar_host[i1][0], pos_ar_guest[i2][0]], [pos_ar_host[i1][1], pos_ar_guest[i2][1]],
-                         color='green', linewidth=linewidth,linestyle='dashed')
+                         color='green', linewidth=linewidth, linestyle='dashed')
 
             N_DEEP = FLAGS.N_DEEP_VISUALIZATION
             for i_deep in range(1, N_DEEP + 1):
@@ -205,44 +194,22 @@ def plotx2(ti=0):
                             else:
                                 plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='lightsalmon')
 
-            # for parent_id, children in guest_children_remapi.items():
-            #     if guest_lv[parent_id] == 1:
-            #         pos = 0
-            #         nc = 0
-            #         # print("DB", parent_id, children)
-            #         for child in children:
-            #             # if child not in imap_leaf_guest:
-            #             #     continue
-            #             ichild = imap_leaf_guest[child]
-            #             pos += np.asarray(pos_ar_guest[ichild])
-            #             nc += 1
-            #         if nc == 0:
-            #             continue
-            #         pos /= nc
-            #         pos[1] -= 1
-            #         plt.scatter(pos[0], pos[1], c='brown')
-            #         for child in children:
-            #             if child not in imap_leaf_guest:
-            #                 continue
-            #             ichild = imap_leaf_guest[child]
-            #             child_pos = np.asarray(pos_ar_guest[ichild])
-            #             plt.plot([pos[0], child_pos[0]], [pos[1], child_pos[1]], color='yellow')
-            #
-
             plt.title(name + "_" + "%s" % tp_dict_id[ti] + "_" + "%s" % sc[ti])
-            plt.show()
-            # plt.savefig
-            # break
+            # plt.show()
+            plt.tight_layout()
+            plt.savefig("out_visual/" + name.split("/")[-2].capitalize() + "_D%s" % FLAGS.N_DEEP_VISUALIZATION + ".png")
+
             ic += 1
-            if ic == 10:
-                break
+            # if ic == 10:
+            #     break
+
 
 if __name__ == "__main__":
     parser = OptionParser()
 
-    parser.add_option("-l", "--label", dest="label", type='int', default=0, help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
-
+    parser.add_option("-l", "--label", dest="label", type='int', default=0,
+                      help="{'frugivory': 0, 'pollination': 1, 'neg': 2}")
 
     (options, args) = parser.parse_args()
-    # dumpEmbedding()
+    dumpEmbedding()
     plotx2(ti=options.label)

@@ -5,7 +5,7 @@ PATTERN = "{ \"name\" : \"Neg_%s\",\n" \
           "\t\t\"guest\": \"data/simulated/null/null%s/guest.tree\",\n" \
           "\t\t\"links\": \"data/simulated/null/null%s/links.csv\" }"
 def gen_negjson():
-    fout = open("negative_pairs.json", "w")
+    fout = open("../jsinfo/negative_pairs.json", "w")
     fout.write("[\n")
     for i in range(50):
         fout.write(PATTERN % (i,i,i,i))

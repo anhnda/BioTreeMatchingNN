@@ -15,5 +15,5 @@ def split_jsonfile(inp, r=0.9):
         json.dump(j2, f)
 
 if __name__ == "__main__":
-    split_jsonfile("positive_pairs.json")
-    split_jsonfile("negative_pairs.json")
+    split_jsonfile("../jsinfo/positive_pairs.json")
+    split_jsonfile("../jsinfo/negative_pairs.json")

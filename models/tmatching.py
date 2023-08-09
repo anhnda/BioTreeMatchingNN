@@ -2,8 +2,7 @@ import torch
 from torch_scatter import scatter_mean
 from torch_geometric.data import Batch
 import FLAGS
-from generate_graphpair import update_anchor_batch
-from torch.nn.functional import  normalize, softmax
+from data_factory.generate_graphpair import update_anchor_batch
 from torch_geometric.nn.norm.graph_norm import GraphNorm
 from torch.nn import Softmax
 class TEGConv(torch.nn.Module):
